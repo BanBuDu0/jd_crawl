@@ -3,15 +3,7 @@ import requests
 import re
 import json
 import db_control
-
-
-class Item:
-    def __init__(self):
-        self.id = ''
-        self.name = ''
-        self.price = 0
-        self.seller = ''
-        # self.img = ''
+from db_control import Item
 
 
 def getHTML(u):
@@ -26,7 +18,6 @@ def getHTML(u):
 
 
 def crawl(r, it: Item, count: int):
-                   
     pattern = re.compile(r'<li([\S\s]*?)class="p-icons"')
     shop = pattern.findall(r)[count]
     # print(shop)
