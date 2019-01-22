@@ -3,7 +3,15 @@ import requests
 import re
 import json
 import db_control
-from db_control import Item
+
+
+class Item:
+    def __init__(self):
+        self.id = ''
+        self.name = ''
+        self.price = 0
+        self.seller = ''
+        # self.img = ''
 
 
 def getHTML(u):

@@ -49,15 +49,16 @@ def minPrice():
 
 def showall():
     i = finddata()
+    j = []
     while True:
         try:
-            print(next(i))
+            j.append(next(i))
         except StopIteration:
-            sys.exit()
+            return j
 
 
-def insertList():
-    goods = '电脑'
+def insertList(goods: str):
+    # goods = '电脑'
     url = 'http://search.jd.com/Search?keyword={}&enc=utf-8'.format(goods)
     r = spir.getHTML(url)
     for i in range(30):
@@ -73,4 +74,5 @@ def insertList():
 
 if __name__ == '__main__':
     # insertList()
-    showall()
+    j = showall()
+    print(j)

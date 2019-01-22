@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Result</title>
+</head>
+<body>
+<div>
+
+    <h1>Hello, {% if name %}
+                   {{ name }}
+               {% else %}
+                   Stranger
+               {% endif %}!
+    </h1>
+    <table>
+        {% for i in row %}
+            <tr>
+                <th><a href="/">{{ i['name'] }}</a></th>
+                <th>{{ i['price'] }}</th>
+            </tr>
+        {% endfor %}
+    </table>
+    <img src="/static/20190115144156hotcomments.jpg" alt="HOT COMMENTS" width="400">
+    <img width="400" src="/static/20190115144156pcomments.jpg" alt="HOT COMMENTS">   
+</div>
+</body>
+</html>

@@ -2,7 +2,7 @@ import pymongo
 
 
 def insert():
-    client = pymongo.MongoClient("mongodb://localhost:27017/")
+    client = pymongo.MongoClient("mongodb://127.0.0.1:27017/")
     db = client['test_database']
     col = db["test_collection"]  #
     tom = {
@@ -19,6 +19,7 @@ def insert():
     }
     # col.delete_one(tom)
     col.insert_one(tom)
+    col.insert(alice)
     cursor = col.find()
     print(cursor.count())  # 获取文档个数
     for item in cursor:
