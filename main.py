@@ -5,17 +5,20 @@ import db_control
 
 def show_hotcomments(item: {}):
     ci = spir.hotcomments(item)
-    generate_comments.generateByfrequent(ci)
+    path = generate_comments.generateByfrequent(ci)
+    return path
 
 
 def show_pcomments(item: {}):
-    ci = spir.pcomments(item)
-    generate_comments.generateByText(ci)
+    ci = ""
+    for i in spir.pcomments(item):
+        ci += i + " " 
+    path = generate_comments.generateByText(ci)
+    return path
 
 
 if __name__ == '__main__':
-    item = db_control.best()
+    item = db_control.minPrice()
     # item = db_control.minPrice()
-    show_hotcomments(item)
-    show_pcomments(item)
-
+    print(show_hotcomments(item))
+    print(show_pcomments(item))

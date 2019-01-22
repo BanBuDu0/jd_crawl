@@ -5,6 +5,8 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 
 import db_control
+import generate_comments
+import spir
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'hard to guess string'
@@ -35,8 +37,16 @@ def index():
 def res():
     name = session.get('shop')
     print("name")
-    i = db_control.showall()
-    return render_template('res.html', name=name, row=i)
+    i = db_control.showall() 
+
+    item = db_control.best()
+    frequent_ci = spir.hotcomments(item)
+    hotcomments_path = generate_comments.generateByfrequent(frequent_ci)
+    text_ci = ""
+    for j in spir.pcomments(item):
+        text_ci += j + " " 
+    pcomments_path = generate_comments.generateByText(text_ci)
+    return render_template('res.html', name=name, row=i, hotcomments_path=hotcomments_path, pcomments_path= pcomments_path)
 
 
 if __name__ == '__main__':

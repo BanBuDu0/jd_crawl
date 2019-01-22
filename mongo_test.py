@@ -24,6 +24,3 @@ def insert():
     print(cursor.count())  # 获取文档个数
     for item in cursor:
         print(item)
-
-
-

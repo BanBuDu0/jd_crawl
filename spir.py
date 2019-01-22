@@ -3,15 +3,7 @@ import requests
 import re
 import json
 import db_control
-
-
-class Item:
-    def __init__(self):
-        self.id = ''
-        self.name = ''
-        self.price = 0
-        self.seller = ''
-        # self.img = ''
+from module import Item
 
 
 def getHTML(u):
@@ -61,7 +53,8 @@ def comments(i, item: {}):
     &productId={}&score=0&sortType=5&page={}&pageSize=10&isShadowSku=0&fold=1'.format(goodsID, i)
     # shopurl = 'https://item.jd.com/{}.html'.format(id)
     r = getHTML(comments_url)
-    r = r[(r.find('(') + 1):r.rfind(')')]
+    r = r[(r.find('(') + 1):r.rfind(');')]
+    r = r.replace('\\', '\\\\')
     comment_json = json.loads(r)
     return comment_json
 
@@ -71,7 +64,6 @@ def hotcomments(item: {}):
     hot_comments = comment_json['hotCommentTagStatistics']
     ci = {}
     for i in hot_comments:
-        ou = i['name'] + '  ' + str(i['count'])
         name = str(i['name'])
         count = float(i['count'])
         s = {
@@ -82,10 +74,8 @@ def hotcomments(item: {}):
 
 
 def pcomments(item: {}):
-    s = ''
     for i in range(10):
         comment_json = comments(i, item)
         p_comments = comment_json['comments']
         for j in p_comments:
-            s = s + j['content'] + "  "
-    return s
+            yield j['content']

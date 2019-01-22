@@ -1,3 +1,4 @@
+
 from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
 import time
@@ -31,5 +32,3 @@ def generateByText(ci):
     plt.axis("off")
     plt.show()
     '''
-
-

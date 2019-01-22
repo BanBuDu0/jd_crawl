@@ -1,15 +1,7 @@
 import pymongo
 import sys
 import spir
-
-
-class Item:
-    def __init__(self):
-        self.id = ''
-        self.name = ''
-        self.price = 0
-        self.seller = ''
-        # self.img = ''
+from module import Item
 
 
 def connectDB():
@@ -35,6 +27,7 @@ def best():
     next(i)
     return next(i)
 
+
 def minPrice():
     i = finddata()
     row = next(i)
@@ -57,8 +50,7 @@ def showall():
             return j
 
 
-def insertList(goods: str):
-    # goods = '电脑'
+def insertList(goods: str): 
     url = 'http://search.jd.com/Search?keyword={}&enc=utf-8'.format(goods)
     r = spir.getHTML(url)
     for i in range(30):
@@ -73,6 +65,8 @@ def insertList(goods: str):
 
 
 if __name__ == '__main__':
-    # insertList()
+    goods = '电脑'
+    # insertList(goods)
     j = showall()
-    print(j)
+    for i in j:
+        print(i)
