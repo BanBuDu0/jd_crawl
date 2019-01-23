@@ -48,6 +48,7 @@ def res():
     item = db_control.best(name)
     frequent_ci = spir.hotcomments(item)
     hotcomments_path = generate_comments.generateByfrequent(frequent_ci)
+    
     text_ci = ""
     for j in spir.pcomments(item):
         text_ci += j + " " 
