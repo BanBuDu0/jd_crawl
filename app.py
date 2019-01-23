@@ -36,10 +36,16 @@ def index():
 @app.route('/res')
 def res():
     name = session.get('shop')
-    print("name")
-    i = db_control.showall() 
 
-    item = db_control.best()
+    i = db_control.showall(name)
+    
+    if i:
+        pass
+    else:
+        db_control.insertList(name, name)
+        i = db_control.showall(name)
+    
+    item = db_control.best(name)
     frequent_ci = spir.hotcomments(item)
     hotcomments_path = generate_comments.generateByfrequent(frequent_ci)
     text_ci = ""

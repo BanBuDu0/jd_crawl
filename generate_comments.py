@@ -24,7 +24,7 @@ def generateByText(ci):
     stopwords.add('此用户未填写评价内容')
     # str = ['此用户未填写评价内容']
     wordcloud = WordCloud(background_color="white", width=1000, height=860, font_path=font, stopwords=stopwords).generate(ci)
-    path = "./static/{}pcomments.jpg".format(str)
+    path = r"./static/{}pcomments.jpg".format(str)
     wordcloud.to_file(path)
     return path
     '''

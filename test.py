@@ -1,5 +1,8 @@
-from os import path
+from db_control import finddata, showall
 
-p = "./static"
-p = path.join(p, 'ok')
-print(p)
+name = '电脑'
+s = showall(name)
+if s :
+    print(s)
+else:
+    print("no")
