@@ -15,13 +15,6 @@ def insert(d: Item, table_name):
     connectDB(table_name).insert_one(d.__dict__)
 
 
-def finddata(table_name):
-    cn = connectDB(table_name)
-    data1 = cn.find({}, {'_id': 0})
-    for i in data1:
-        yield i
-
-
 def best(table_name):
     i = finddata(table_name)
     next(i)
@@ -40,14 +33,11 @@ def minPrice(table_name):
             return row
 
 
-def showall(table_name):
-    i = finddata(table_name)
-    j = []
-    while True:
-        try:
-            j.append(next(i))
-        except StopIteration:
-            return j
+def finddata(table_name):
+    cn = connectDB(table_name)
+    data1 = cn.find({}, {'_id': 0})
+    for i in data1:
+        yield i
 
 
 def insertList(goods: str, table_name): 
@@ -65,8 +55,8 @@ def insertList(goods: str, table_name):
 
 
 if __name__ == '__main__':
-    goods = '电脑'
+    goods = '鞋子'
     # insertList(goods)
-    j = showall(goods)
+    j = finddata(goods)
     for i in j:
         print(i)

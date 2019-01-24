@@ -1,8 +1,7 @@
-from db_control import finddata, showall
+import db_control
+import os
 
-name = '电脑'
-s = showall(name)
-if s :
-    print(s)
-else:
-    print("no")
+i = db_control.finddata('鞋子')
+    
+if not i:
+    print('not None')

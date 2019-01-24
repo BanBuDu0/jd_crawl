@@ -3,6 +3,8 @@ from flask_wtf import FlaskForm
 from flask_bootstrap import Bootstrap
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
+import os
+import threading
 
 import db_control
 import generate_comments
@@ -37,23 +39,44 @@ def index():
 def res():
     name = session.get('shop')
 
-    i = db_control.showall(name)
-    
-    if i:
-        pass
-    else:
+    i = db_control.finddata(name)
+    if not i:
         db_control.insertList(name, name)
-        i = db_control.showall(name)
+        i = db_control.finddata(name)
+        print('insert_shop_info')
     
+    hotcomments_path = r"./static/{}hotcomments.jpg".format(name)
+    pcomments_path = r"./static/{}pcomments.jpg".format(name)
+    if not os.path.exists(hotcomments_path):
+        print('dont have hot_pic')     
+        t1 = threading.Thread(target=get_hot_pic(name), name='get_hot_pic')
+        t1.start()
+        t1.join()
+    if not os.path.exists(pcomments_path):
+        print('dont have p_pic')
+        t2 = threading.Thread(target=get_hot_pic(name), name='get_hot_pic')
+        t2.start()
+        t2.join()
+    # t = threading.Thread(target=get_pic(frequent_ci, text_ci, name), name='get_pic')
+    # t.start()
+    # t.join()
+
+    return render_template('res.html', name=name, row=i, hotcomments_path=hotcomments_path, pcomments_path= pcomments_path)
+
+def get_hot_pic(name):
+    print('thread hot_pic running...')
     item = db_control.best(name)
     frequent_ci = spir.hotcomments(item)
-    hotcomments_path = generate_comments.generateByfrequent(frequent_ci)
-    
+    generate_comments.generateByfrequent(frequent_ci, name)
+
+
+def get_p_pic(name):
+    print('thread private_pic running...')
+    item = db_control.best(name)
     text_ci = ""
     for j in spir.pcomments(item):
         text_ci += j + " " 
-    pcomments_path = generate_comments.generateByText(text_ci)
-    return render_template('res.html', name=name, row=i, hotcomments_path=hotcomments_path, pcomments_path= pcomments_path)
+    generate_comments.generateByText(text_ci, name)
 
 
 if __name__ == '__main__':
