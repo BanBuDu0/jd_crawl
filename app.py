@@ -5,6 +5,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 import os
 import threading
+import time
 
 import db_control
 import generate_comments
@@ -35,48 +36,53 @@ def index():
     return render_template('index.html', form=form)
 
 
+def get_hot_pic(name, path):
+    item = db_control.best(name)
+    frequent_ci = spir.hotcomments(item)
+    generate_comments.generateByfrequent(frequent_ci, path)
+
+
+P_COMMERNTS = ""
+def get_commts(i, item):
+    texts =spir.pcomments(i, item)
+    global P_COMMERNTS
+    for j in texts:
+        P_COMMERNTS += j.replace('hellip', " ")
+
+
+def get_p_pic(name, path):
+    item = db_control.best(name)
+    for i in range(10):
+        thread = threading.Thread(target=get_commts(i, item), name='get_p_comments')
+        thread.start()
+    thread.join()
+    generate_comments.generateByText(P_COMMERNTS, path)
+
+
 @app.route('/res')
 def res():
     name = session.get('shop')
 
+    # i = db_control.finddata(name)
+    # if not i:
+    db_control.insertList(name, name)
     i = db_control.finddata(name)
-    if not i:
-        db_control.insertList(name, name)
-        i = db_control.finddata(name)
-        print('insert_shop_info')
+    # print('insert_shop_info')
     
     hotcomments_path = r"./static/{}hotcomments.jpg".format(name)
     pcomments_path = r"./static/{}pcomments.jpg".format(name)
     if not os.path.exists(hotcomments_path):
-        print('dont have hot_pic')     
-        t1 = threading.Thread(target=get_hot_pic(name), name='get_hot_pic')
+        t1 = threading.Thread(target=get_hot_pic(name, hotcomments_path), name='get_hot_pic')
         t1.start()
         t1.join()
+    start = time.time()
     if not os.path.exists(pcomments_path):
-        print('dont have p_pic')
-        t2 = threading.Thread(target=get_hot_pic(name), name='get_hot_pic')
+        t2 = threading.Thread(target=get_p_pic(name, pcomments_path), name='get_p_pic')
         t2.start()
         t2.join()
-    # t = threading.Thread(target=get_pic(frequent_ci, text_ci, name), name='get_pic')
-    # t.start()
-    # t.join()
-
+    end = time.time()
+    print(end - start)
     return render_template('res.html', name=name, row=i, hotcomments_path=hotcomments_path, pcomments_path= pcomments_path)
-
-def get_hot_pic(name):
-    print('thread hot_pic running...')
-    item = db_control.best(name)
-    frequent_ci = spir.hotcomments(item)
-    generate_comments.generateByfrequent(frequent_ci, name)
-
-
-def get_p_pic(name):
-    print('thread private_pic running...')
-    item = db_control.best(name)
-    text_ci = ""
-    for j in spir.pcomments(item):
-        text_ci += j + " " 
-    generate_comments.generateByText(text_ci, name)
 
 
 if __name__ == '__main__':

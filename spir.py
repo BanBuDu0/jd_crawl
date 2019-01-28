@@ -73,9 +73,9 @@ def hotcomments(item: {}):
     return ci
 
 
-def pcomments(item: {}):
-    for i in range(10):
-        comment_json = comments(i, item)
-        p_comments = comment_json['comments']
-        for j in p_comments:
-            yield j['content']
+def pcomments(i, item):
+    # for i in range(10):
+    comment_json = comments(i, item)
+    p_comments = comment_json['comments']
+    for j in p_comments:
+        yield j['content']
