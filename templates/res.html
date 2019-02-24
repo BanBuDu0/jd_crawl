@@ -6,7 +6,7 @@
     <table> 
         {% for i in row %}
             <tr>
-                <th><a href="/">{{ i['name'] }}</a></th>
+                <th><a href={{ i['name'] }}>{{ i['name'] }}</a></th>
                 <th>{{ i['price'] }}</th>
             </tr>
         {% endfor %}

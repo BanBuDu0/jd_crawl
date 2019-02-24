@@ -12,12 +12,13 @@ def generateByfrequent(ci, path):
     # return path
 
 
-def generateByText(ci, path):
+def generateByText(path):
     font = r'./simhei.ttf'
+    ci_path = r"./static/pcomments.txt"
+    f = open(ci_path, 'r').read()
     stopwords = STOPWORDS.copy()
     stopwords.add('此用户未填写评价内容')
-    stopwords.add('hellip')
-    wordcloud = WordCloud(background_color="white", width=1000, height=860, font_path=font, stopwords=stopwords).generate(ci)
+    wordcloud = WordCloud(background_color="white", width=1000, height=860, font_path=font, stopwords=stopwords).generate(f)
     # path = r"./static/{}pcosmments.jpg".format(name)
     wordcloud.to_file(path)
     # return path

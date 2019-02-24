@@ -6,13 +6,14 @@ from wtforms.validators import DataRequired
 import os
 import threading
 import time
+from multiprocessing import Pool
 
 import db_control
 import generate_comments
 import spir
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'hard to guess string'
+app.config['SECRET_KEY'] = 'MY NAME IS SYJ'
 
 bootstrap = Bootstrap(app)
 
@@ -42,21 +43,34 @@ def get_hot_pic(name, path):
     generate_comments.generateByfrequent(frequent_ci, path)
 
 
-P_COMMERNTS = ""
+# P_COMMERNTS = ""
 def get_commts(i, item):
-    texts =spir.pcomments(i, item)
-    global P_COMMERNTS
-    for j in texts:
-        P_COMMERNTS += j.replace('hellip', " ")
+    print('Run task %s (%s)...' % (i, os.getpid()))
+    texts = spir.pcomments(i, item)
+    j = ""
+    for i in texts:
+        j += i.replace('hellip', "") + " "
+    return j
+
+
+def writeTXTcallback(x):
+    print("ok")
+    ci_path = r"./static/pcomments.txt"
+    with open(ci_path, 'a') as f:
+        f.write('%s \n' % x)
 
 
 def get_p_pic(name, path):
+    ci_path = r"./static/pcomments.txt"
+    with open(ci_path, 'w') as f:
+        f.write('\n' )
     item = db_control.best(name)
+    p = Pool()
     for i in range(10):
-        thread = threading.Thread(target=get_commts(i, item), name='get_p_comments')
-        thread.start()
-    thread.join()
-    generate_comments.generateByText(P_COMMERNTS, path)
+        p.apply_async(get_commts, args=(i, item,), callback=writeTXTcallback)
+    p.close()
+    p.join()
+    generate_comments.generateByText(path)
 
 
 @app.route('/res')
@@ -72,17 +86,20 @@ def res():
     hotcomments_path = r"./static/{}hotcomments.jpg".format(name)
     pcomments_path = r"./static/{}pcomments.jpg".format(name)
     if not os.path.exists(hotcomments_path):
-        t1 = threading.Thread(target=get_hot_pic(name, hotcomments_path), name='get_hot_pic')
+        t1 = threading.Thread(target=get_hot_pic, args=(name, hotcomments_path,))
         t1.start()
         t1.join()
     start = time.time()
     if not os.path.exists(pcomments_path):
-        t2 = threading.Thread(target=get_p_pic(name, pcomments_path), name='get_p_pic')
-        t2.start()
-        t2.join()
+        get_p_pic(name, pcomments_path)
     end = time.time()
     print(end - start)
-    return render_template('res.html', name=name, row=i, hotcomments_path=hotcomments_path, pcomments_path= pcomments_path)
+    return render_template('res.html', name=name, row=i, hotcomments_path=hotcomments_path, pcomments_path=pcomments_path)
+
+
+@app.route('/<shop_name>')
+def shop_comments_show(shop_name):
+    return "OKOKOK"
 
 
 if __name__ == '__main__':

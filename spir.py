@@ -66,10 +66,7 @@ def hotcomments(item: {}):
     for i in hot_comments:
         name = str(i['name'])
         count = float(i['count'])
-        s = {
-            name: count
-        }
-        ci.update(s)
+        ci.update({name: count})
     return ci
 
 
