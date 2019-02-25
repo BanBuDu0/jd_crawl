@@ -4,15 +4,20 @@ import spir
 from module import Item
 
 
-def connectDB(table_name):
+def conDB():
     client = pymongo.MongoClient("mongodb://localhost:27017/")
     db = client['spider']
+    return db
+
+
+def conTable(table_name):
+    db = conDB()
     col = db[table_name]
     return col
 
 
 def insert(d: Item, table_name):
-    connectDB(table_name).insert_one(d.__dict__)
+    conTable(table_name).insert_one(d.__dict__)
 
 
 def best(table_name):
@@ -34,10 +39,15 @@ def minPrice(table_name):
 
 
 def finddata(table_name):
-    cn = connectDB(table_name)
+    cn = conTable(table_name)
     data1 = cn.find({}, {'_id': 0})
     for i in data1:
         yield i
+
+
+def findByID(table_name, id):
+    cn = conTable(table_name)
+    return cn.find({'id': id}, {'_id': 0})
 
 
 def insertList(goods: str, table_name): 

@@ -46,11 +46,10 @@ def crawl(r, it: Item, count: int):
     return it
 
 
-def comments(i, item: {}):
+def comments(i, item_id):
     # item = db_control.minPrice()
-    goodsID = item['id']
     comments_url = 'https://club.jd.com/comment/skuProductPageComments.action?callback=fetchJSON_comment98vv46561\
-    &productId={}&score=0&sortType=5&page={}&pageSize=10&isShadowSku=0&fold=1'.format(goodsID, i)
+    &productId={}&score=0&sortType=5&page={}&pageSize=10&isShadowSku=0&fold=1'.format(item_id, i)
     # shopurl = 'https://item.jd.com/{}.html'.format(id)
     r = getHTML(comments_url)
     r = r[(r.find('(') + 1):r.rfind(');')]
@@ -59,8 +58,8 @@ def comments(i, item: {}):
     return comment_json
 
 
-def hotcomments(item: {}):
-    comment_json = comments(1, item)
+def hotcomments(item_id):
+    comment_json = comments(1, item_id)
     hot_comments = comment_json['hotCommentTagStatistics']
     ci = {}
     for i in hot_comments:
@@ -70,9 +69,9 @@ def hotcomments(item: {}):
     return ci
 
 
-def pcomments(i, item):
+def pcomments(i, item_id):
     # for i in range(10):
-    comment_json = comments(i, item)
+    comment_json = comments(i, item_id)
     p_comments = comment_json['comments']
     for j in p_comments:
         yield j['content']
