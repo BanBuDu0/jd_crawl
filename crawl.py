@@ -4,6 +4,7 @@ import re
 import json
 from module import Item
 from bs4 import BeautifulSoup
+import time
 
 
 def getHTML(u, data=None):
@@ -56,7 +57,12 @@ def crawl(r):
         try:
             it.historyPrice = get_history_price(it.id)
         except:
-            pass
+            # temp = {}
+            # day = 
+            # temp.update()
+            day = str(time.strftime('%Y.%m.%d',time.localtime(time.time())))
+            day = day.replace('.', ',')
+            it.historyPrice = {day: float(it.price)}
         yield it
 
 

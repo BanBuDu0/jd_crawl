@@ -55,14 +55,14 @@ def get_commts(i, item_id):
 
 
 def writeTXTcallback(comments):
-    ci_path = r"./data/pcomments.txt"
+    ci_path = r"./static/data/pcomments.txt"
     with open(ci_path, 'a') as f:
         f.write('%s \n' % comments)
     print("%s ok" % os.getpid())
 
 
 def get_p_pic(name, path, item_id):
-    ci_path = r"./data/pcomments.txt"
+    ci_path = r"./static/data/pcomments.txt"
     with open(ci_path, 'w') as f:
         f.write('\n' )
     p = Pool()
@@ -89,8 +89,8 @@ def res():
     else:
         item = controler.best(name)
     mstr = name + item['id']
-    hotcomments_path = r"./data/{}hotcomments.jpg".format(mstr)
-    pcomments_path = r"./data/{}pcomments.jpg".format(mstr)
+    hotcomments_path = r"./static/data/{}hotcomments.jpg".format(mstr)
+    pcomments_path = r"./static/data/{}pcomments.jpg".format(mstr)
     start = time.time()
     if not os.path.exists(hotcomments_path):
         t1 = threading.Thread(target=get_hot_pic, args=(name, hotcomments_path, item['id'], ))
@@ -116,8 +116,8 @@ def shop_comments_show(shop_id):
     name = session.get('shop')
     mstr = name + shop_id
     item = controler.findByID(name, shop_id)
-    hotcomments_path = r"./data/{}hotcomments.jpg".format(mstr)
-    pcomments_path = r"./data/{}pcomments.jpg".format(mstr)
+    hotcomments_path = r"./static/data/{}hotcomments.jpg".format(mstr)
+    pcomments_path = r"./static/data/{}pcomments.jpg".format(mstr)
     if not os.path.exists(hotcomments_path):
         t1 = threading.Thread(target=get_hot_pic, args=(name, hotcomments_path, shop_id, ))
         t1.start()
