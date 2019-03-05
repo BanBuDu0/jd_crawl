@@ -1,6 +1,6 @@
 import pymongo
 import sys
-import spir
+import crawl
 from module import Item
 
 
@@ -21,9 +21,10 @@ def insert(d: Item, table_name):
 
 
 def best(table_name):
-    i = finddata(table_name)
-    next(i)
-    return next(i)
+    rows = finddata(table_name)
+    for row in rows:
+        if not row['isAD']:
+            return row
 
 
 def minPrice(table_name):
@@ -47,15 +48,14 @@ def finddata(table_name):
 
 def findByID(table_name, id):
     cn = conTable(table_name)
-    return cn.find({'id': id}, {'_id': 0})
+    return cn.find({'id': id}, {'_id': 0})[0]
 
 
 def insertList(goods: str, table_name): 
     url = 'http://search.jd.com/Search?keyword={}&enc=utf-8'.format(goods)
-    r = spir.getHTML(url)
-    for i in range(30):
-        item = Item()
-        item = spir.crawl(r, item, i)
+    r = crawl.getHTML(url)
+    items = crawl.crawl(r)
+    for item in items:
         j = item.name.find('<')
         while j != -1:
             rear = item.name.find('>') + 1

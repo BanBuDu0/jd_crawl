@@ -14,7 +14,7 @@ def generateByfrequent(ci, path):
 
 def generateByText(path):
     font = r'./simhei.ttf'
-    ci_path = r"./static/pcomments.txt"
+    ci_path = r"./data/pcomments.txt"
     f = open(ci_path, 'r').read()
     stopwords = STOPWORDS.copy()
     stopwords.add('此用户未填写评价内容')

@@ -4,4 +4,6 @@ class Item:
         self.name = ''
         self.price = 0
         self.seller = ''
-        # self.img = ''
+        self.isAD = False
+        self.img = ''
+        self.historyPrice = {}

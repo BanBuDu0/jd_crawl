@@ -3,7 +3,80 @@
 {% block title %}Result{% endblock %}
 
 {% block page_content %}
-    <img src=../{{hotcomments_path}} alt="HOT COMMENTS" width="400">
-    <img src=../{{pcomments_path}} alt="Private COMMENTS" width="400">
-    <a href=/res>back</a>
+<h2 align="center"> {{ item['name'] }}</h2>
+<h2 style="color:red " align="right"> {{ item['price'] }}￥</h2>
+<div align="left">
+    <img src=https:{{item['img']}} alt="SHOP IMG" />
+    <div align="right">
+        <button onclick="window.location.href = '/res'">返回</button>
+    </div>
+</div>
+<div id="main" style="width: 1000px;height:700px;"></div>
+<div aligen="center">
+    <img src=../{{hotcomments_path}} alt="HOT COMMENTS" width="500">
+    <img src=../{{pcomments_path}} alt="Private COMMENTS" width="500">
+</div>
+
+<script src="/static/js/echarts.min.js"></script>
+<script type="text/javascript">
+    var myChart = echarts.init(document.getElementById('main'));
+    var s = "{{ item['name']|safe }}";
+    console.log(s);
+    // 指定图表的配置项和数据\
+    var option = {
+        title: {
+            text: '历史价格变化',
+            // subtext: 'a'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        toolbox: {
+            show: false,
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                dataView: { readOnly: false },
+                magicType: { type: ['line', 'bar'] },
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: {{ x| tojson }}
+                // ['2017,1,4', '2017,5,8', '2017,5,9', '2017,5,10', '2017,5,12', '2017,5,15', '2017,5,16', '2017,5,18', '2017,8,25', '2017,9,19', '2017,10,3', '2017,10,7', '2017,10,11', '2017,10,12', '2017,10,13', '2017,11,5', '2017,11,18', '2017,12,3', '2018,2,2', '2018,8,4', '2018,8,9', '2018,8,15', '2018,8,22', '2018,9,1', '2018,9,9', '2018,9,22', '2018,10,1', '2018,10,3', '2018,10,5', '2018,10,7', '2018,10,11', '2018,10,14', '2018,10,15', '2018,11,1', '2018,11,4', '2018,11,10', '2018,11,14', '2018,11,17', '2018,11,18', '2018,11,19', '2018,12,4', '2018,12,5', '2018,12,7', '2019,1,1', '2019,1,18', '2019,1,20', '2019,1,21', '2019,1,25', '2019,1,26', '2019,2,1']
+            },
+    yAxis: {
+        type: 'value',
+        boundaryGap: [0, '100%'],
+            axisLabel: {
+            formatter: '{value}￥'
+        }
+    },
+    series: [
+        {
+            name: '价格',
+            type: 'line',
+            data: {{ y| tojson }},
+        // [1599, 1799, 1599, 1799, 1899, 1999, 1999, 1699, 1499, 1599, 1499, 1599, 1399, 1599, 1499, 1549, 1749, 1799, 2599, 1449, 1399, 1449, 1399, 1449, 1399, 1449, 1399, 1449, 1399, 1449, 1349, 1449, 1399, 2599, 1399, 1349, 1399, 1349, 1399, 1349, 2599, 1349, 1349, 1399, 1249, 1299, 1349, 1299, 1349, 1499],
+        markPoint: {
+            data: [
+                { type: 'max', name: '最大值' },
+                { type: 'min', name: '最小值' }
+            ]
+        },
+        markLine: {
+            data: [
+                { type: 'average', name: '平均值' }
+            ]
+        }
+                }
+    ]
+        };
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+</script>
 {% endblock %}
