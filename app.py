@@ -4,8 +4,8 @@ from flask_bootstrap import Bootstrap
 from wtforms import StringField, SubmitField, SelectField
 from wtforms.validators import DataRequired
 import os
-import threading
 import time
+import threading
 from multiprocessing import Pool
 
 import controler
@@ -25,7 +25,7 @@ def page_not_found(e):
 
 class ShopForm(FlaskForm):
     shop = StringField('Search Shopping', validators=[DataRequired()])
-    select = SelectField(label='Select',coerce=int , choices=[(0, 'Cheapest'), (1, 'BestMatch')])
+    select = SelectField(label='Select',coerce=int , choices=[(0, 'BestMatch'), (1, 'Cheapest')])
     submit = SubmitField('Submit')
 
 
@@ -64,13 +64,18 @@ def writeTXTcallback(comments):
 def get_p_pic(name, path, item_id):
     ci_path = r"./static/data/pcomments.txt"
     with open(ci_path, 'w') as f:
-        f.write('\n' )
+        f.write(' ')
     p = Pool()
     for i in range(10):
         p.apply_async(get_commts, args=(i, item_id,), callback=writeTXTcallback)
     p.close()
     p.join()
-    generate_comments.generateByText(path)
+    try:
+        generate_comments.generateByText(path)
+    except:
+        with open(ci_path, 'a') as f:
+            f.write('暂无评价～\n')
+        generate_comments.generateByText(path)
 
 
 @app.route('/res')
@@ -79,15 +84,29 @@ def res():
     col = controler.conDB()
     shoplist = col.list_collection_names()
     if name not in shoplist:
+        p = Pool()
+        p.apply_async(controler.insertList, args=(name, name, ))
+        p.close()
+        p.join()
+        '''
         t0 = threading.Thread(target=controler.insertList, args=(name, name, ))
         t0.start()
         t0.join()
+        '''
         # controler.insertList(name, name)
     rows = controler.finddata(name)
-    if session.get('select') == 0:
+    if session.get('select') == 1:
         item = controler.minPrice(name)
     else:
         item = controler.best(name)
+    '''
+    historyP = crawl.get_history_price(item['id'])
+    item['histryPrice'] = historyP
+    col = controler.conTable(name)
+    newHisP = {"$set":{'historyPrice': historyP}}
+    query = {'id': item['id']}
+    col.update_one(query, newHisP)
+    '''
     mstr = name + item['id']
     hotcomments_path = r"./static/data/{}hotcomments.jpg".format(mstr)
     pcomments_path = r"./static/data/{}pcomments.jpg".format(mstr)
@@ -95,19 +114,20 @@ def res():
     if not os.path.exists(hotcomments_path):
         t1 = threading.Thread(target=get_hot_pic, args=(name, hotcomments_path, item['id'], ))
         t1.start()
-        t1.join()
-    end = time.time()
-    print("hotcomments time: %.3f" % float(end - start))
-    start = time.time()
     if not os.path.exists(pcomments_path):
         t2 = threading.Thread(target=get_p_pic, args=(name, pcomments_path, item['id'], ))
         t2.start()
+    histryPrice = crawl.get_history_price(item['id'])
+    data = list(histryPrice.keys())
+    hp = list(histryPrice.values())
+    try:
+        t1.join()
         t2.join()
-        # get_p_pic(name, pcomments_path, item_id)
+    except:
+        pass
     end = time.time()
-    print("pcomments time: %.3f" % float(end - start))
-    data = list(item['historyPrice'].keys())
-    hp = list(item['historyPrice'].values())
+    print("Time: %.3f" % float(end - start))
+
     return render_template('res.html', row=rows, hotcomments_path=hotcomments_path, pcomments_path=pcomments_path, item=item, x=data, y=hp)
 
 
@@ -118,24 +138,29 @@ def shop_comments_show(shop_id):
     item = controler.findByID(name, shop_id)
     hotcomments_path = r"./static/data/{}hotcomments.jpg".format(mstr)
     pcomments_path = r"./static/data/{}pcomments.jpg".format(mstr)
+    start = time.time()
     if not os.path.exists(hotcomments_path):
         t1 = threading.Thread(target=get_hot_pic, args=(name, hotcomments_path, shop_id, ))
         t1.start()
-        t1.join()
-    start = time.time()
     if not os.path.exists(pcomments_path):
         t2 = threading.Thread(target=get_p_pic, args=(name, pcomments_path, shop_id ))
         t2.start()
+    histryPrice = crawl.get_history_price(item['id'])
+    data = list(histryPrice.keys())
+    hp = list(histryPrice.values())
+    try:
         t2.join()
+        t1.join()
+    except:
+        pass
     end = time.time()
-    print(end - start)
-    data = list(item['historyPrice'].keys())
-    hp = list(item['historyPrice'].values())
+    print("Time: %.3f" % float(end - start))
+
     return render_template('com.html', hotcomments_path=hotcomments_path, pcomments_path=pcomments_path, item=item, x=data, y=hp)
 
 
 if __name__ == '__main__':
     # app.run()
-    app.run(host='0.0.0.0',port=5000,debug=True)
-    app.jinja_env.variable_start_string = '{{ '
-    app.jinja_env.variable_end_string = ' }}'
+    app.run(host='0.0.0.0', port=5000, debug=True)
+    # app.jinja_env.variable_start_string = '{{ '
+    # app.jinja_env.variable_end_string = ' }}'

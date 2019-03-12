@@ -30,7 +30,7 @@ def crawl(r):
         shop = str(shop)
         p = re.compile(r'data-sku="(.*?)"')
         it.id = p.search(shop).group(1)
-        print(it.id)
+        # print(it.id)
 
         p = re.compile(r'p-price[\S\s]*?<i>(.*?)</i>')
         try:
@@ -54,15 +54,17 @@ def crawl(r):
         p = re.compile(r'p-promo-flag')
         if p.search(shop) is not None:
             it.isAD = True
+        '''
+        start = time.time()
         try:
             it.historyPrice = get_history_price(it.id)
         except:
-            # temp = {}
-            # day = 
-            # temp.update()
             day = str(time.strftime('%Y.%m.%d',time.localtime(time.time())))
             day = day.replace('.', ',')
             it.historyPrice = {day: float(it.price)}
+        end = time.time()
+        print(end - start)
+        '''
         yield it
 
 

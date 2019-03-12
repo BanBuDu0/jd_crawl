@@ -20,13 +20,14 @@
         <tr>
             <th>Name</th>
             <th>Price</th>
+            <th>Seller</th>
         </tr>
         {% for i in row %}
         <tr>
-            <th><a href=res/{{ i['id'] }}>{{ i['name'] }} </a> </th> <th>{{ i['price'] }}</th>
+            <th><a href=res/{{ i['id'] }}>{{ i['name'] }} </a> </th> <th>{{ i['price'] }}</th> <th>{{ i['seller'] }}</th>
         </tr>
         {% endfor %}
-    </table>
+    </table>    
 </div>
 <br />
 

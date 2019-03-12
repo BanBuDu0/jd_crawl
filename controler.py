@@ -16,6 +16,8 @@ def conTable(table_name):
     return col
 
 
+
+
 def insert(d: Item, table_name):
     conTable(table_name).insert_one(d.__dict__)
 
@@ -26,7 +28,7 @@ def best(table_name):
         if not row['isAD']:
             return row
 
-
+'''
 def minPrice(table_name):
     i = finddata(table_name)
     row = next(i)
@@ -37,6 +39,12 @@ def minPrice(table_name):
                 row = temp
         except StopIteration:
             return row
+'''
+
+def minPrice(table_name):
+    cn = conTable(table_name)
+    data1 = cn.find({}, {'_id': 0}).sort('price')[0]
+    return data1
 
 
 def finddata(table_name):
