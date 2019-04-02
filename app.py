@@ -51,7 +51,7 @@ def get_commts(i, item_id):
     texts = crawl.pcomments(i, item_id)
     j = ""
     for i in texts:
-        j += i.replace('hellip', "") + " "
+        j += i.replace('hellip', "") + "\n"
     return j
 
 
@@ -106,7 +106,7 @@ def res():
         hp = list(item['historyPrice'].values())
     else:
         historyPrice = crawl.get_history_price(item['id'])
-        result = controler.conTable(name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
+        controler.conTable(name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
         data = list(historyPrice.keys())
         hp = list(historyPrice.values())
     try:
@@ -140,7 +140,7 @@ def shop_comments_show(shop_id):
         hp = list(item['historyPrice'].values())
     else:
         historyPrice = crawl.get_history_price(item['id'])
-        result = controler.conTable(name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
+        controler.conTable(name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
         data = list(historyPrice.keys())
         hp = list(historyPrice.values())
     try:

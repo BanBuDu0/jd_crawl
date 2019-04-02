@@ -21,13 +21,14 @@ def getHTML(u, data=None):
 def crawl(r):
     soup = BeautifulSoup(r, 'html.parser')
     li = soup.find_all("li", class_="gl-item")
-
     # pattern = re.compile(r'<li([\S\s]*?)class="p-icons"')
     # shop = pattern.findall(r)[count]
     # print(shop)
     for shop in li:
         it = Item()
         shop = str(shop)
+        with open('abc.html', 'a') as f:
+            f.write(shop)
         p = re.compile(r'data-sku="(.*?)"')
         it.id = p.search(shop).group(1)
         # print(it.id)
