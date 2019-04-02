@@ -24,10 +24,11 @@
         </tr>
         {% for i in row %}
         <tr>
-            <th><a href=res/{{ i['id'] }}>{{ i['name'] }} </a> </th> <th>{{ i['price'] }}</th> <th>{{ i['seller'] }}</th>
+            <th><a href=res/{{ i['id'] }}>{{ i['name'] }} </a> </th> <th>{{ i['price'] }}</th>
+            <th>{{ i['seller'] }}</th>
         </tr>
         {% endfor %}
-    </table>    
+    </table>
 </div>
 <br />
 

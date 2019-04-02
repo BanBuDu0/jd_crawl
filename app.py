@@ -7,6 +7,7 @@ import os
 import time
 import threading
 from multiprocessing import Pool
+import redis
 
 import controler
 import generate_comments
@@ -84,29 +85,12 @@ def res():
     col = controler.conDB()
     shoplist = col.list_collection_names()
     if name not in shoplist:
-        p = Pool()
-        p.apply_async(controler.insertList, args=(name, name, ))
-        p.close()
-        p.join()
-        '''
-        t0 = threading.Thread(target=controler.insertList, args=(name, name, ))
-        t0.start()
-        t0.join()
-        '''
-        # controler.insertList(name, name)
+        controler.insertList(name, name)
     rows = controler.finddata(name)
     if session.get('select') == 1:
         item = controler.minPrice(name)
     else:
         item = controler.best(name)
-    '''
-    historyP = crawl.get_history_price(item['id'])
-    item['histryPrice'] = historyP
-    col = controler.conTable(name)
-    newHisP = {"$set":{'historyPrice': historyP}}
-    query = {'id': item['id']}
-    col.update_one(query, newHisP)
-    '''
     mstr = name + item['id']
     hotcomments_path = r"./static/data/{}hotcomments.jpg".format(mstr)
     pcomments_path = r"./static/data/{}pcomments.jpg".format(mstr)
@@ -117,9 +101,14 @@ def res():
     if not os.path.exists(pcomments_path):
         t2 = threading.Thread(target=get_p_pic, args=(name, pcomments_path, item['id'], ))
         t2.start()
-    histryPrice = crawl.get_history_price(item['id'])
-    data = list(histryPrice.keys())
-    hp = list(histryPrice.values())
+    if item['historyPrice']:
+        data = list(item['historyPrice'].keys())
+        hp = list(item['historyPrice'].values())
+    else:
+        historyPrice = crawl.get_history_price(item['id'])
+        result = controler.conTable(name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
+        data = list(historyPrice.keys())
+        hp = list(historyPrice.values())
     try:
         t1.join()
         t2.join()
@@ -145,9 +134,15 @@ def shop_comments_show(shop_id):
     if not os.path.exists(pcomments_path):
         t2 = threading.Thread(target=get_p_pic, args=(name, pcomments_path, shop_id ))
         t2.start()
-    histryPrice = crawl.get_history_price(item['id'])
-    data = list(histryPrice.keys())
-    hp = list(histryPrice.values())
+
+    if item['historyPrice']:
+        data = list(item['historyPrice'].keys())
+        hp = list(item['historyPrice'].values())
+    else:
+        historyPrice = crawl.get_history_price(item['id'])
+        result = controler.conTable(name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
+        data = list(historyPrice.keys())
+        hp = list(historyPrice.values())
     try:
         t2.join()
         t1.join()

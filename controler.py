@@ -16,8 +16,6 @@ def conTable(table_name):
     return col
 
 
-
-
 def insert(d: Item, table_name):
     conTable(table_name).insert_one(d.__dict__)
 

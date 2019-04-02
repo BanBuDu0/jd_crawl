@@ -1,5 +1,11 @@
 # jdspcrawl
-jd goods spider
+
+environment
+>apt install mongodb
+>apt install python3-tk
+>pip3 install -r requirements.txt
+
+##jd goods spider
 
 requests + mongo + wordcloud
 

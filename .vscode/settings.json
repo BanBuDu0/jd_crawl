@@ -1,5 +1,0 @@
-{
-    "python.pythonPath": "venv/bin/python",
-    "editor.renderControlCharacters": true,
-    "editor.renderWhitespace": "all"
-}
