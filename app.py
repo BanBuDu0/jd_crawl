@@ -85,12 +85,17 @@ def res():
     col = controler.conDB()
     shoplist = col.list_collection_names()
     if name not in shoplist:
+        print("in insert")
         controler.insertList(name, name)
+        
     rows = controler.finddata(name)
     if session.get('select') == 1:
         item = controler.minPrice(name)
+        print("min")
     else:
         item = controler.best(name)
+        print("best")
+        print(item['id'])
     mstr = name + item['id']
     hotcomments_path = r"./static/data/{}hotcomments.jpg".format(mstr)
     pcomments_path = r"./static/data/{}pcomments.jpg".format(mstr)

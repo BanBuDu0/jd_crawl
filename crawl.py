@@ -10,8 +10,7 @@ import time
 def getHTML(u, data=None):
     headers = {
         'Connection': 'keep-alive',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                       Chrome/66.0.3359.139 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36'
     }
     r = requests.get(u, params=data, headers=headers)
     r.encoding = r.apparent_encoding
