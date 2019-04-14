@@ -26,8 +26,8 @@ def crawl(r):
     for shop in li:
         it = Item()
         shop = str(shop)
-        with open('abc.html', 'a') as f:
-            f.write(shop)
+        # with open('abc.html', 'a') as f:
+        #     f.write(shop)
         p = re.compile(r'data-sku="(.*?)"')
         it.id = p.search(shop).group(1)
         # print(it.id)
@@ -46,7 +46,7 @@ def crawl(r):
         if p.search(shop) is not None:
             it.seller = p.search(shop).group(1)
         else:
-            it.seller = "京东自营"
+            it.seller = "Advertisement"
 
         p = re.compile(r'p-img[\S\s]*?source-data-lazy-img="(.*?)"')
         it.img = p.search(shop).group(1)

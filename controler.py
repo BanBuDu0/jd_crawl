@@ -60,7 +60,6 @@ def findByID(table_name, id):
 def insertList(goods: str, table_name): 
     url = 'http://search.jd.com/Search?keyword={}&enc=utf-8'.format(goods)
     r = crawl.getHTML(url)
-    print(r)
     items = crawl.crawl(r)
     for item in items:
         j = item.name.find('<')
