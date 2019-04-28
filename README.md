@@ -1,11 +1,13 @@
 # jd_goods_crawl
 
-environment
+##RUN
 >apt install mongodb
 >
 >apt install python3-tk
 >
 >pip3 install -r requirements.txt
+>
+>python3 app.py
 
 ## jd goods spider
 
