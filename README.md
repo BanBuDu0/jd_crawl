@@ -1,6 +1,6 @@
 # jd_goods_crawl
 
-##RUN
+## RUN
 >apt install mongodb
 >
 >apt install python3-tk
