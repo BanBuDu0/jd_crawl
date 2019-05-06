@@ -1,1 +1,1 @@
-#save *.jpg
+# save *.jpg
