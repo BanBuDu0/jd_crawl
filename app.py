@@ -162,7 +162,6 @@ def shop_comments_show(shop_id):
         pass
     end = time.time()
     print("Time: %.3f" % float(end - start))
-
     return render_template('com.html', hotcomments_path=hotcomments_path, pcomments_path=pcomments_path, item=item,
                            x=data, y=hp)
 
@@ -179,3 +178,4 @@ if __name__ == '__main__':
     jieba.add_word('很不错')
     jieba.add_word('此用户未填写评价内容')
     app.run(host='0.0.0.0', port=5000, debug=True)
+
