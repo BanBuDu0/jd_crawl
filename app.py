@@ -8,6 +8,7 @@ import time
 import threading
 from multiprocessing import Pool
 import redis
+import jieba
 
 import controler
 import generate_comments
@@ -26,14 +27,14 @@ def page_not_found(e):
 
 class ShopForm(FlaskForm):
     shop = StringField('Search Shopping', validators=[DataRequired()])
-    select = SelectField(label='Select',coerce=int , choices=[(0, 'BestMatch'), (1, 'Cheapest')])
+    select = SelectField(label='Select', coerce=int, choices=[(0, 'BestMatch'), (1, 'Cheapest')])
     submit = SubmitField('Submit')
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = ShopForm()
-    if form.validate_on_submit(): 
+    if form.validate_on_submit():
         session['shop'] = form.shop.data
         session['select'] = form.select.data
         return redirect(url_for('res'))
@@ -41,7 +42,7 @@ def index():
 
 
 def get_hot_pic(name, path, item_id):
-    frequent_ci =  crawl.hotcomments(item_id)
+    frequent_ci = crawl.hotcomments(item_id)
     generate_comments.generateByfrequent(frequent_ci, path)
 
 
@@ -57,8 +58,11 @@ def get_commts(i, item_id):
 
 def writeTXTcallback(comments):
     ci_path = r"./static/data/pcomments.txt"
-    with open(ci_path, 'a') as f:
-        f.write('%s \n' % comments)
+    with open(ci_path, 'a', encoding='utf-8') as f:
+        commentsList = jieba.cut(comments)
+        for i in commentsList:
+            f.write('%s ' % i)
+        f.write('\n')
     print("%s ok" % os.getpid())
 
 
@@ -86,7 +90,7 @@ def res():
     shoplist = col.list_collection_names()
     if name not in shoplist:
         controler.insertList(name, name)
-        
+
     rows = controler.finddata(name)
     if session.get('select') == 1:
         item = controler.minPrice(name)
@@ -97,10 +101,10 @@ def res():
     pcomments_path = r"./static/data/{}pcomments.jpg".format(mstr)
     start = time.time()
     if not os.path.exists(hotcomments_path):
-        t1 = threading.Thread(target=get_hot_pic, args=(name, hotcomments_path, item['id'], ))
+        t1 = threading.Thread(target=get_hot_pic, args=(name, hotcomments_path, item['id'],))
         t1.start()
     if not os.path.exists(pcomments_path):
-        t2 = threading.Thread(target=get_p_pic, args=(name, pcomments_path, item['id'], ))
+        t2 = threading.Thread(target=get_p_pic, args=(name, pcomments_path, item['id'],))
         t2.start()
     if item['historyPrice']:
         data = list(item['historyPrice'].keys())
@@ -121,7 +125,8 @@ def res():
     end = time.time()
     print("Time: %.3f" % float(end - start))
 
-    return render_template('res.html', row=rows, hotcomments_path=hotcomments_path, pcomments_path=pcomments_path, item=item, x=data, y=hp)
+    return render_template('res.html', row=rows, hotcomments_path=hotcomments_path, pcomments_path=pcomments_path,
+                           item=item, x=data, y=hp)
 
 
 @app.route('/res/<shop_id>')
@@ -133,10 +138,10 @@ def shop_comments_show(shop_id):
     pcomments_path = r"./static/data/{}pcomments.jpg".format(mstr)
     start = time.time()
     if not os.path.exists(hotcomments_path):
-        t1 = threading.Thread(target=get_hot_pic, args=(name, hotcomments_path, shop_id, ))
+        t1 = threading.Thread(target=get_hot_pic, args=(name, hotcomments_path, shop_id,))
         t1.start()
     if not os.path.exists(pcomments_path):
-        t2 = threading.Thread(target=get_p_pic, args=(name, pcomments_path, shop_id ))
+        t2 = threading.Thread(target=get_p_pic, args=(name, pcomments_path, shop_id))
         t2.start()
 
     if item['historyPrice']:
@@ -158,7 +163,8 @@ def shop_comments_show(shop_id):
     end = time.time()
     print("Time: %.3f" % float(end - start))
 
-    return render_template('com.html', hotcomments_path=hotcomments_path, pcomments_path=pcomments_path, item=item, x=data, y=hp)
+    return render_template('com.html', hotcomments_path=hotcomments_path, pcomments_path=pcomments_path, item=item,
+                           x=data, y=hp)
 
 
 if __name__ == '__main__':
