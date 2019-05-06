@@ -1,6 +1,6 @@
 import jieba
 
-s = "我来到清华大学"
+s = "非常不错"
 seg_list = jieba.cut(s)
 a = ""
 for i in seg_list:

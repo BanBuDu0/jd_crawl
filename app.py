@@ -169,4 +169,13 @@ def shop_comments_show(shop_id):
 
 if __name__ == '__main__':
     # app.run()
+    jieba.add_word('非常好用')
+    jieba.add_word('非常满意')
+    jieba.add_word('非常喜欢')
+    jieba.add_word('非常不错')
+    jieba.add_word('很满意')
+    jieba.add_word('很好用')
+    jieba.add_word('很喜欢')
+    jieba.add_word('很不错')
+    jieba.add_word('此用户未填写评价内容')
     app.run(host='0.0.0.0', port=5000, debug=True)
