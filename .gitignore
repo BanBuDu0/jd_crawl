@@ -10,7 +10,6 @@ __pycache__/
 *.jpg
 # C extensions
 *.so
-*.txt
 abc.html
 # Distribution / packaging
 .Python
