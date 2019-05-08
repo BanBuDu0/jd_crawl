@@ -132,7 +132,7 @@ def shop_comments_show(shop_id):
         t1 = threading.Thread(target=get_hot_pic, args=(hotcomments_path, shop_id,))
         t1.start()
     if not os.path.exists(pcomments_path):
-        t2 = threading.Thread(target=get_p_pic, args=(mstr, pcomments_path, shop_id))
+        t2 = threading.Thread(target=get_p_pic, args=(mstr, pcomments_path, shop_id,))
         t2.start()
 
     if item['historyPrice']:
