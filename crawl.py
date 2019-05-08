@@ -4,7 +4,6 @@ import re
 import json
 from module import Item
 from bs4 import BeautifulSoup
-import time
 
 
 def getHTML(u, data=None):
@@ -69,9 +68,13 @@ def crawl(r):
         yield it
 
 
-def comments(i, item_id):
-    comments_url = 'https://club.jd.com/comment/skuProductPageComments.action?callback=fetchJSON_comment98vv46561\
-    &productId={}&score=0&sortType=5&page={}&pageSize=10&isShadowSku=0&fold=1'.format(item_id, i)
+def comments(i, item_id, flag=1):
+    if flag == 1:
+        comments_url = 'https://club.jd.com/comment/skuProductPageComments.action?callback=fetchJSON_comment98vv46561\
+        &productId={}&score=0&sortType=5&page={}&pageSize=10&isShadowSku=0&fold=1'.format(item_id, i)
+    else:
+        comments_url = 'https://sclub.jd.com/comment/productPageComments.action?callback=fetchJSON_comment98vv236\
+        &productId={}&score=1&sortType=5&page={}&pageSize=10&isShadowSku=0&fold=1'.format(item_id, i)
     # shopurl = 'https://item.jd.com/{}.html'.format(id)
     r = getHTML(comments_url)
     r = r[(r.find('(') + 1):r.rfind(');')]
@@ -80,11 +83,11 @@ def comments(i, item_id):
     return comment_json
 
 
-def hotcomments(item_id):
+def hot_comments(item_id):
     comment_json = comments(1, item_id)
-    hot_comments = comment_json['hotCommentTagStatistics']
+    hot = comment_json['hotCommentTagStatistics']
     ci = {}
-    for i in hot_comments:
+    for i in hot:
         name = str(i['name'])
         count = float(i['count'])
         ci.update({name: count})
@@ -93,9 +96,16 @@ def hotcomments(item_id):
     return ci
 
 
-def pcomments(i, item_id):
+def private_comments(i, item_id):
     # for i in range(10):
     comment_json = comments(i, item_id)
+    p_comments = comment_json['comments']
+    for j in p_comments:
+        yield j['content']
+
+
+def bad_private_comments(i, item_id):
+    comment_json = comments(i, item_id, 0)
     p_comments = comment_json['comments']
     for j in p_comments:
         yield j['content']
@@ -114,7 +124,7 @@ def get_history_price(item_id):
     p = re.compile(r"<script type='text/javascript'(.*?)</script>")
     # data = p.findall(r)
     data = p.search(r).group(1)
-    p = re.compile(r"\[(.*?)\]") #[ ]具有去特殊符号的作用,匹配[]用\转义
+    p = re.compile(r"\[(.*?)\]")  # [ ]具有去特殊符号的作用,匹配[]用\转义
     datas = p.findall(data)
 
     p = re.compile(r"\((.*?)\)")

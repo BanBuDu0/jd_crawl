@@ -1,10 +1,6 @@
 # -*- coding: UTF-8 -*-
 import requests
-import re
-import json
-from module import Item
-from bs4 import BeautifulSoup
-import time
+import crawl
 
 
 def getHTML(u, data=None):
@@ -17,5 +13,11 @@ def getHTML(u, data=None):
     r.encoding = r.apparent_encoding
     print(r.text)
 
-getHTML("https://club.jd.com/comment/skuProductPageComments.action?callback=fetchJSON_comment98vv46561\
-    &productId=1686632&score=0&sortType=5&page=0&pageSize=10&isShadowSku=0&fold=1")
+
+bad_iterator = crawl.bad_private_comments(0, 1686632)
+for i in bad_iterator:
+    print(i)
+god_iterator = crawl.private_comments(0, 1686632)
+print("now it's good")
+for i in god_iterator:
+    print(i)

@@ -9,9 +9,10 @@ import threading
 from multiprocessing import Pool
 import redis
 import jieba
+from snownlp import SnowNLP
 
 import controler
-import generate_comments
+import analysis
 import crawl
 
 app = Flask(__name__)
@@ -41,59 +42,49 @@ def index():
     return render_template('index.html', form=form)
 
 
-def get_hot_pic(name, path, item_id):
-    frequent_ci = crawl.hotcomments(item_id)
-    generate_comments.generateByfrequent(frequent_ci, path)
+def get_hot_pic(path, item_id):
+    frequent_ci = crawl.hot_comments(item_id)
+    analysis.by_frequent(frequent_ci, path)
+
+
+r = redis.Redis(host='localhost', port=6379, db=0)
 
 
 # P_COMMERNTS = ""
-def get_commts(i, item_id):
+def get_comments(i, item_id, name):
     print('Run task %s (%s)...' % (i, os.getpid()))
-    texts = crawl.pcomments(i, item_id)
+    texts = crawl.private_comments(i, item_id)
     j = ""
     for i in texts:
-        j += i.replace('hellip', "") + "\n"
-    return j
-
-
-def writeTXTcallback(comments):
-    ci_path = r"./static/data/pcomments.txt"
-    with open(ci_path, 'a', encoding='utf-8') as f:
-        commentsList = jieba.cut(comments)
-        for i in commentsList:
-            f.write('%s ' % i)
-        f.write('\n')
-    print("%s ok" % os.getpid())
+        j += i.replace('hellip', "") + '\n'
+    r.append(name, j)
 
 
 def get_p_pic(name, path, item_id):
-    ci_path = r"./static/data/pcomments.txt"
-    with open(ci_path, 'w') as f:
-        f.write(' ')
+    r.set(name, "")
     p = Pool()
     for i in range(10):
-        p.apply_async(get_commts, args=(i, item_id,), callback=writeTXTcallback)
+        p.apply_async(get_comments, args=(i, item_id, name))
     p.close()
     p.join()
     try:
-        generate_comments.generateByText(path)
+        analysis.by_text(path, name)
     except:
-        with open(ci_path, 'a') as f:
-            f.write('暂无评价～\n')
-        generate_comments.generateByText(path)
+        r.set(name, '暂无评价～\n')
+        analysis.by_text(path, name)
 
 
 @app.route('/res')
 def res():
     name = session.get('shop')
-    col = controler.conDB()
+    col = controler.con_db()
     shoplist = col.list_collection_names()
     if name not in shoplist:
-        controler.insertList(name, name)
+        controler.insert_list(name, name)
 
-    rows = controler.finddata(name)
+    rows = controler.find_data(name)
     if session.get('select') == 1:
-        item = controler.minPrice(name)
+        item = controler.min_price(name)
     else:
         item = controler.best(name)
     mstr = name + item['id']
@@ -101,10 +92,10 @@ def res():
     pcomments_path = r"./static/data/{}pcomments.jpg".format(mstr)
     start = time.time()
     if not os.path.exists(hotcomments_path):
-        t1 = threading.Thread(target=get_hot_pic, args=(name, hotcomments_path, item['id'],))
+        t1 = threading.Thread(target=get_hot_pic, args=(hotcomments_path, item['id'],))
         t1.start()
     if not os.path.exists(pcomments_path):
-        t2 = threading.Thread(target=get_p_pic, args=(name, pcomments_path, item['id'],))
+        t2 = threading.Thread(target=get_p_pic, args=(mstr, pcomments_path, item['id'],))
         t2.start()
     if item['historyPrice']:
         data = list(item['historyPrice'].keys())
@@ -114,7 +105,7 @@ def res():
             historyPrice = crawl.get_history_price(item['id'])
         except:
             historyPrice = {time.strftime("%Y,%m,%d", time.localtime()): item['price']}
-        controler.conTable(name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
+        controler.con_table(name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
         data = list(historyPrice.keys())
         hp = list(historyPrice.values())
     try:
@@ -126,22 +117,22 @@ def res():
     print("Time: %.3f" % float(end - start))
 
     return render_template('res.html', row=rows, hotcomments_path=hotcomments_path, pcomments_path=pcomments_path,
-                           item=item, x=data, y=hp)
+                           item=item, x=data, y=hp, tag=session.get('select'))
 
 
 @app.route('/res/<shop_id>')
 def shop_comments_show(shop_id):
     name = session.get('shop')
     mstr = name + shop_id
-    item = controler.findByID(name, shop_id)
+    item = controler.find_by_id(name, shop_id)
     hotcomments_path = r"./static/data/{}hotcomments.jpg".format(mstr)
     pcomments_path = r"./static/data/{}pcomments.jpg".format(mstr)
     start = time.time()
     if not os.path.exists(hotcomments_path):
-        t1 = threading.Thread(target=get_hot_pic, args=(name, hotcomments_path, shop_id,))
+        t1 = threading.Thread(target=get_hot_pic, args=(hotcomments_path, shop_id,))
         t1.start()
     if not os.path.exists(pcomments_path):
-        t2 = threading.Thread(target=get_p_pic, args=(name, pcomments_path, shop_id))
+        t2 = threading.Thread(target=get_p_pic, args=(mstr, pcomments_path, shop_id))
         t2.start()
 
     if item['historyPrice']:
@@ -152,7 +143,7 @@ def shop_comments_show(shop_id):
             historyPrice = crawl.get_history_price(item['id'])
         except:
             historyPrice = {time.strftime("%Y,%m,%d", time.localtime()): item['price']}
-        controler.conTable(name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
+        controler.con_table(name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
         data = list(historyPrice.keys())
         hp = list(historyPrice.values())
     try:

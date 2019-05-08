@@ -1,27 +1,26 @@
 import pymongo
-import sys
 import crawl
 from module import Item
 
 
-def conDB():
+def con_db():
     client = pymongo.MongoClient("mongodb://localhost:27017/")
     db = client['spider']
     return db
 
 
-def conTable(table_name):
-    db = conDB()
+def con_table(table_name):
+    db = con_db()
     col = db[table_name]
     return col
 
 
 def insert(d: Item, table_name):
-    conTable(table_name).insert_one(d.__dict__)
+    con_table(table_name).insert_one(d.__dict__)
 
 
 def best(table_name):
-    rows = finddata(table_name)
+    rows = find_data(table_name)
     for row in rows:
         if not row['isAD']:
             return row
@@ -39,26 +38,27 @@ def minPrice(table_name):
             return row
 '''
 
-def minPrice(table_name):
-    cn = conTable(table_name)
+
+def min_price(table_name):
+    cn = con_table(table_name)
     data1 = cn.find({}, {'_id': 0}).sort('price')[0]
     return data1
 
 
-def finddata(table_name):
-    cn = conTable(table_name)
+def find_data(table_name):
+    cn = con_table(table_name)
     data1 = cn.find({}, {'_id': 0})
     for i in data1:
         yield i
 
 
-def findByID(table_name, id):
-    cn = conTable(table_name)
+def find_by_id(table_name, id):
+    cn = con_table(table_name)
     return cn.find({'id': id}, {'_id': 0})[0]
 
 
-def insertList(goods: str, table_name): 
-    url = 'http://search.jd.com/Search?keyword={}&enc=utf-8'.format(goods)
+def insert_list(goods: str, table_name):
+    url = 'https://search.jd.com/Search?keyword={}&enc=utf-8'.format(goods)
     r = crawl.getHTML(url)
     items = crawl.crawl(r)
     for item in items:
@@ -71,8 +71,8 @@ def insertList(goods: str, table_name):
 
 
 if __name__ == '__main__':
-    goods = '鞋孝'
+    goods = '鞋子'
     # insertList(goods)
-    j = finddata(goods)
+    j = find_data(goods)
     for i in j:
         print(i)
