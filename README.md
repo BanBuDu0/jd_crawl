@@ -3,7 +3,7 @@
 ## RUN
 >apt install mongodb
 >
->apt install redis
+>apt install redis-server
 >
 >apt install python3-tk
 >
