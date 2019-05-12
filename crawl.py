@@ -54,18 +54,13 @@ def crawl(r):
         p = re.compile(r'p-promo-flag')
         if p.search(shop) is not None:
             it.isAD = True
-        '''
-        start = time.time()
-        try:
-            it.historyPrice = get_history_price(it.id)
-        except:
-            day = str(time.strftime('%Y.%m.%d',time.localtime(time.time())))
-            day = day.replace('.', ',')
-            it.historyPrice = {day: float(it.price)}
-        end = time.time()
-        print(end - start)
-        '''
         yield it
+
+
+def get_shops(goods: str):
+    url = 'https://search.jd.com/Search?keyword={}&enc=utf-8'.format(goods)
+    r = getHTML(url)
+    return crawl(r)
 
 
 def comments(i, item_id, flag=1):

@@ -1,11 +1,9 @@
 from snownlp import SnowNLP
+import jieba
 
-ci_path = r"./static/data/analysis.txt"
-with open(ci_path, 'r', encoding='utf-8') as f:
-    while True:
-        try:
-            s = f.readline()
-            p = SnowNLP(s).sentiments
-            print(s.strip('\n') + "|||||||||" + str(p))
-        except IOError as e:
-            print(e)
+
+if __name__ == '__main__':
+    s = '刚拿到,很新,因为主板没到所以没有装机后续跟进'
+    # jieba.add_word("不高兴")
+    k = SnowNLP(s).sentiments
+    print(k)
