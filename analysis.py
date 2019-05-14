@@ -45,10 +45,12 @@ def get_comments(i, item_id, name):
     print('Run task %s (%s)...' % (i, os.getpid()))
     texts = crawl.private_comments(i, item_id)
     temp = ""
+    flag = 0
     for i in texts:
         i = i.replace('hellip', "")
         if i != '此用户未填写评价内容':
             p = SnowNLP(i).sentiments
+            r.set('sentiments', flag == 0 ? str(p): ',' + str(p))
         comments_list = jieba.cut(i)
         for j in comments_list:
             if j == '不' or j == '非常' or j == '很':
