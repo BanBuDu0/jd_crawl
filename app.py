@@ -64,7 +64,7 @@ def res():
         t1 = threading.Thread(target=analysis.get_hot_pic, args=(hotcomments_path, item['id'],))
         t1.start()
     if not os.path.exists(pcomments_path):
-        t2 = threading.Thread(target=analysis.get_p_pic, args=(mstr, pcomments_path, item['id'],))
+        t2 = threading.Thread(target=analysis.get_p_pic, args=(table_name, pcomments_path, item['id'], item['sentiments'], ))
         t2.start()
 
     try:
@@ -73,15 +73,16 @@ def res():
         t0.join()
     except:
         pass
-
+    item = controler.find_by_id(table_name, item['id'])
+    sentiments = list(str(item['sentiments']).split(',')[:-1])
+    sentiments_path = analysis.sentiments_pic(sentiments, mstr)
     historyPrice = controler.find_by_id(table_name, item['id'])['historyPrice']
     data = list(historyPrice.keys())
     hp = list(historyPrice.values())
     end = time.time()
     print("Time: %.3f" % float(end - start))
-
     return render_template('res.html', row=rows, hotcomments_path=hotcomments_path, pcomments_path=pcomments_path,
-                           item=item, x=data, y=hp, tag=session.get('select'))
+                           sentiments_path=sentiments_path, item=item, x=data, y=hp, tag=session.get('select'))
 
 
 @app.route('/res/<shop_id>')
@@ -100,7 +101,7 @@ def shop_comments_show(shop_id):
         t1 = threading.Thread(target=analysis.get_hot_pic, args=(hotcomments_path, shop_id,))
         t1.start()
     if not os.path.exists(pcomments_path):
-        t2 = threading.Thread(target=analysis.get_p_pic, args=(mstr, pcomments_path, shop_id,))
+        t2 = threading.Thread(target=analysis.get_p_pic, args=(table_name, pcomments_path, shop_id, item['sentiments'], ))
         t2.start()
 
     try:
@@ -110,6 +111,9 @@ def shop_comments_show(shop_id):
     except:
         pass
 
+    item = controler.find_by_id(table_name, item['id'])
+    sentiments = list(str(item['sentiments']).split(',')[:-1])
+    sentiments_path = analysis.sentiments_pic(sentiments, mstr)
     historyPrice = controler.find_by_id(table_name, item['id'])['historyPrice']
     data = list(historyPrice.keys())
     hp = list(historyPrice.values())
@@ -117,7 +121,7 @@ def shop_comments_show(shop_id):
 
     print("Time: %.3f" % float(end - start))
     return render_template('com.html', hotcomments_path=hotcomments_path, pcomments_path=pcomments_path, item=item,
-                           x=data, y=hp)
+                           sentiments_path=sentiments_path, x=data, y=hp)
 
 
 if __name__ == '__main__':

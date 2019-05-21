@@ -1,16 +1,20 @@
 from wordcloud import WordCloud, STOPWORDS
-import jieba
+import jieba_fast as jieba
 import redis
 import time
 from snownlp import SnowNLP
 from multiprocessing import Pool
 import os
+import matplotlib.pyplot as plt
+import numpy as np
+from pylab import mpl
 
 import crawl
 import controler
 
 r = redis.Redis(host='localhost', port=6379, db=0)
 font = r'./static/simhei.ttf'
+mpl.rcParams['font.sans-serif'] = ['SimHei']
 
 
 def by_frequent(ci, path):
@@ -41,33 +45,39 @@ def history_price(item, table_name):
 
 
 # P_COMMERNTS = ""
-def get_comments(i, item_id, name):
+def get_comments(i, item_id, name, has_sentiments):
     print('Run task %s (%s)...' % (i, os.getpid()))
     texts = crawl.private_comments(i, item_id)
     temp = ""
-    flag = 0
     for i in texts:
         i = i.replace('hellip', "")
-        if i != '此用户未填写评价内容':
+        # sentiments
+        if not has_sentiments:
             p = SnowNLP(i).sentiments
-            r.set('sentiments', flag == 0 ? str(p): ',' + str(p))
+            r.append('sentiments', str(p) + ',')
+
         comments_list = jieba.cut(i)
         for j in comments_list:
             if j == '不' or j == '非常' or j == '很':
                 temp += j
             else:
                 temp += j + " "
-        temp += '||||||' + str(p) + '\n'
+        temp += '\n'
     r.append(name, temp)
 
 
-def get_p_pic(name, path, item_id):
+def get_p_pic(table_name, path, item_id, item_sentiments):
+    name = table_name + item_id
     r.set(name, "")
+    r.set("sentiments", "")
     p = Pool()
+    flag = True if item_sentiments else False
     for i in range(10):
-        p.apply_async(get_comments, args=(i, item_id, name,))
+        p.apply_async(get_comments, args=(i, item_id, name, flag, ))
     p.close()
     p.join()
+    if not flag:
+        controler.con_table(table_name).update_one({"id": item_id}, {"$set": {"sentiments": str(r.get('sentiments'), encoding='utf-8')}})
     try:
         by_text(path, name)
     except:
@@ -78,5 +88,21 @@ def get_p_pic(name, path, item_id):
 def get_hot_pic(path, item_id):
     frequent_ci = crawl.hot_comments(item_id)
     by_frequent(frequent_ci, path)
+
+
+def sentiments_pic(sentiments, name):
+    s = []
+    for i in sentiments:
+        s.append(float(i[0:5]))
+    plt.hist(s, bins=np.arange(0, 1, 0.01), facecolor='#83bff6')
+    plt.title("情感分析")
+    plt.xlabel("正面情感概率")
+    plt.ylabel("数量")
+    path = r"./static/data/{}sentiments.jpg".format(name)
+    plt.savefig(path)
+    return path
+
+
+
 
 

@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 import requests
-import crawl
+from bs4 import BeautifulSoup
 
 
 def getHTML(u, data=None):
@@ -11,13 +11,14 @@ def getHTML(u, data=None):
     }
     r = requests.get(u, params=data, headers=headers)
     r.encoding = r.apparent_encoding
-    print(r.text)
+    return r.text
 
+#
+# url = 'https://search.jd.com/Search?keyword={}&enc=utf-8'.format("电脑")
+# r = getHTML(url)
+# print(r)
 
-bad_iterator = crawl.bad_private_comments(0, 1686632)
-for i in bad_iterator:
-    print(i)
-god_iterator = crawl.private_comments(0, 1686632)
-print("now it's good")
-for i in god_iterator:
-    print(i)
+s = 'aaaa'
+m = str(s)
+print(m)
+

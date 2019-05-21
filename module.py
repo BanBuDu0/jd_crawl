@@ -7,3 +7,4 @@ class Item:
         self.isAD = False
         self.img = ''
         self.historyPrice = {}
+        self.sentiments = ''
