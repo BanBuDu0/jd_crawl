@@ -10,7 +10,7 @@ import numpy as np
 from pylab import mpl
 
 import crawl
-import controler
+import controller
 
 r = redis.Redis(host='localhost', port=6379, db=0)
 font = r'./static/simhei.ttf'
@@ -41,7 +41,7 @@ def history_price(item, table_name):
         historyPrice = crawl.get_history_price(item['id'])
     except:
         historyPrice = {time.strftime("%Y,%m,%d", time.localtime()): item['price']}
-    controler.con_table(table_name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
+    controller.con_table(table_name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
 
 
 # P_COMMERNTS = ""
@@ -56,9 +56,9 @@ def get_comments(i, item_id, name, has_sentiments):
             p = SnowNLP(i).sentiments
             r.append('sentiments', str(p) + ',')
 
-        comments_list = jieba.cut(i)
+        comments_list = cut_words(i)
         for j in comments_list:
-            if j == '不' or j == '非常' or j == '很':
+            if j == '不' or j == '非常' or j == '很' or '不太':
                 temp += j
             else:
                 temp += j + " "
@@ -77,7 +77,7 @@ def get_p_pic(table_name, path, item_id, item_sentiments):
     p.close()
     p.join()
     if not flag:
-        controler.con_table(table_name).update_one({"id": item_id}, {"$set": {"sentiments": str(r.get('sentiments'), encoding='utf-8')}})
+        controller.con_table(table_name).update_one({"id": item_id}, {"$set": {"sentiments": str(r.get('sentiments'), encoding='utf-8')}})
     try:
         by_text(path, name)
     except:
