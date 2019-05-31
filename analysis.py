@@ -56,13 +56,13 @@ def get_comments(i, item_id, name, has_sentiments):
             p = SnowNLP(i).sentiments
             r.append('sentiments', str(p) + ',')
 
-        comments_list = cut_words(i)
-        for j in comments_list:
-            if j == '不' or j == '非常' or j == '很' or '不太':
-                temp += j
-            else:
-                temp += j + " "
-        temp += '\n'
+        # comments_list = cut_words(i)
+        # for j in comments_list:
+        #     if j == '不' or j == '非常' or j == '很' or j == '不太':
+        #         temp += j
+        #     else:
+        #         temp += j + " "
+        temp += i + '\n'
     r.append(name, temp)
 
 
@@ -76,6 +76,17 @@ def get_p_pic(table_name, path, item_id, item_sentiments):
         p.apply_async(get_comments, args=(i, item_id, name, flag, ))
     p.close()
     p.join()
+    s = r.get(name).decode('utf-8')
+    s_cut = cut_words(s)
+    s_res = ""
+
+    for j in s_cut:
+        if j == '不' or j == '非常' or j == '很' or j == '不太':
+            s_res += j
+        else:
+            s_res += j + " "
+    print(s_res)
+    r.set(name, s_res)
     if not flag:
         controller.con_table(table_name).update_one({"id": item_id}, {"$set": {"sentiments": str(r.get('sentiments'), encoding='utf-8')}})
     try:
