@@ -85,7 +85,7 @@ def get_p_pic(table_name, path, item_id, item_sentiments):
             s_res += j
         else:
             s_res += j + " "
-    print(s_res)
+    # print(s_res)
     r.set(name, s_res)
     if not flag:
         controller.con_table(table_name).update_one({"id": item_id}, {"$set": {"sentiments": str(r.get('sentiments'), encoding='utf-8')}})
@@ -112,8 +112,3 @@ def sentiments_pic(sentiments, name):
     path = r"./static/data/{}sentiments.jpg".format(name)
     plt.savefig(path)
     return path
-
-
-
-
-
