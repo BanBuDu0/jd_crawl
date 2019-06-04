@@ -10,7 +10,7 @@ import numpy as np
 from pylab import mpl
 
 import crawl
-import controller
+import dao
 
 r = redis.Redis(host='localhost', port=6379, db=0)
 font = r'./static/simhei.ttf'
@@ -41,7 +41,7 @@ def history_price(item, table_name):
         historyPrice = crawl.get_history_price(item['id'])
     except:
         historyPrice = {time.strftime("%Y,%m,%d", time.localtime()): item['price']}
-    controller.con_table(table_name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
+    dao.con_table(table_name).update_one({"id": item['id']}, {"$set": {"historyPrice": historyPrice}})
 
 
 # P_COMMERNTS = ""
@@ -88,7 +88,7 @@ def get_p_pic(table_name, path, item_id, item_sentiments):
     # print(s_res)
     r.set(name, s_res)
     if not flag:
-        controller.con_table(table_name).update_one({"id": item_id}, {"$set": {"sentiments": str(r.get('sentiments'), encoding='utf-8')}})
+        dao.con_table(table_name).update_one({"id": item_id}, {"$set": {"sentiments": str(r.get('sentiments'), encoding='utf-8')}})
     try:
         by_text(path, name)
     except:

@@ -7,7 +7,7 @@ import os
 import time
 import threading
 
-import controller
+import dao
 import analysis
 
 app = Flask(__name__)
@@ -40,16 +40,16 @@ def index():
 @app.route('/res')
 def res():
     table_name = session.get('shop')
-    col = controller.con_db()
+    col = dao.con_db()
     shoplist = col.list_collection_names()
     if table_name not in shoplist:
-        controller.insert_list(table_name, table_name)
+        dao.insert_list(table_name, table_name)
 
-    rows = controller.find_data(table_name)
+    rows = dao.find_data(table_name)
     if session.get('select') == 1:
-        item = controller.min_price(table_name)
+        item = dao.min_price(table_name)
     else:
-        item = controller.best(table_name)
+        item = dao.best(table_name)
     mstr = table_name + item['id']
     hotcomments_path = r"./static/data/{}hotcomments.jpg".format(mstr)
     pcomments_path = r"./static/data/{}pcomments.jpg".format(mstr)
@@ -73,10 +73,10 @@ def res():
         t0.join()
     except:
         pass
-    item = controller.find_by_id(table_name, item['id'])
+    item = dao.find_by_id(table_name, item['id'])
     sentiments = list(str(item['sentiments']).split(',')[:-1])
     sentiments_path = analysis.sentiments_pic(sentiments, mstr)
-    historyPrice = controller.find_by_id(table_name, item['id'])['historyPrice']
+    historyPrice = dao.find_by_id(table_name, item['id'])['historyPrice']
     data = list(historyPrice.keys())
     hp = list(historyPrice.values())
     end = time.time()
@@ -89,7 +89,7 @@ def res():
 def shop_comments_show(shop_id):
     table_name = session.get('shop')
     mstr = table_name + shop_id
-    item = controller.find_by_id(table_name, shop_id)
+    item = dao.find_by_id(table_name, shop_id)
     hotcomments_path = r"./static/data/{}hotcomments.jpg".format(mstr)
     pcomments_path = r"./static/data/{}pcomments.jpg".format(mstr)
     start = time.time()
@@ -111,10 +111,10 @@ def shop_comments_show(shop_id):
     except Exception as e:
         print(e)
 
-    item = controller.find_by_id(table_name, item['id'])
+    item = dao.find_by_id(table_name, item['id'])
     sentiments = list(str(item['sentiments']).split(',')[:-1])
     sentiments_path = analysis.sentiments_pic(sentiments, mstr)
-    historyPrice = controller.find_by_id(table_name, item['id'])['historyPrice']
+    historyPrice = dao.find_by_id(table_name, item['id'])['historyPrice']
     data = list(historyPrice.keys())
     hp = list(historyPrice.values())
     end = time.time()
