@@ -23,7 +23,7 @@ MarkupSafe==1.1.0
 matplotlib==3.0.2
 mccabe==0.6.1
 numpy==1.16.0
-Pillow==5.4.1
+Pillow==6.2.0
 pycodestyle==2.5.0
 pylint==2.2.2
 pymongo==3.7.2
